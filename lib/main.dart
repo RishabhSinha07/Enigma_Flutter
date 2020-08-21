@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Enigma Encryption',
       home: MyHomePage(title: 'Enigma Encryption'),
     );
@@ -31,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _displayValue = "NA";
-  bool _isLoading = false;
+  bool isLoading = false;
 
   TextEditingController _encryptionMessage = TextEditingController();
 
@@ -45,19 +46,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(_displayValue);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white12,
         title: Text(widget.title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Please type the message to Encrypt/Decrypt:',
+            Text('Message for Encryption/Decryption:',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
             Container(
-              height: 200,
+              margin: EdgeInsets.only(top: 20),
+              height: 100,
+              width: MediaQuery.of(context).size.width / 1.2,
               decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
                   color: Colors.white60,
@@ -79,32 +82,68 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            Column(
-              children: [
-                Text(
-                  "Encrypted/Decrypted Message from server: ",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                Container(
-                  padding: EdgeInsets.only(top: 20),
-                  child: SelectableText(
-                    _displayValue,
-                    style: TextStyle(fontSize: 15),
+            Container(
+              margin: EdgeInsets.only(top: 20),
+              child: Column(
+                children: [
+                  Text(
+                    "Encrypted/Decrypted Message: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
-                ),
-              ],
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    height: 100,
+                    width: MediaQuery.of(context).size.width / 1.2,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.white60,
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    padding: EdgeInsets.only(top: 20),
+                    child: SelectableText(
+                      _displayValue,
+                      style: TextStyle(fontSize: 15),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: redColor,
-          child: Icon(Icons.get_app),
+          backgroundColor: Colors.teal,
+          child: Icon(Icons.autorenew),
           onPressed: () async {
-            setState(() => _isLoading = true);
+            setState(() {
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      backgroundColor: Colors.transparent,
+                      child: new Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          new Text(
+                            "Loading",
+                            style: TextStyle(
+                                color: redColor, fontWeight: FontWeight.bold),
+                          ),
+                          new CircularProgressIndicator()
+                        ],
+                      ),
+                    );
+                  });
+              new Future.delayed(new Duration(seconds: 2), () {
+                Navigator.pop(context); //pop dialog
+              });
+            });
             _displayValue = await _getEnc(_encryptionMessage.text);
-            setState(() => _isLoading = false);
-          }), // This trailing comma makes auto-formatting nicer for build methods.
+            setState(() => isLoading = false);
+          }),
+      backgroundColor:
+          redColor, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
